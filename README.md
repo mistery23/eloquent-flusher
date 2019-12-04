@@ -35,17 +35,17 @@ class User extends Model
 ---
 ```
     /**
-     * Update role
+     * Update user
      *
-     * @param Role $role
+     * @param User $user
      *
      * @return void
      *
      * @throws \RuntimeException
      */
-    public function update(Role $role): void
+    public function update(User $user): void
     {
-        if (false === $role->push()) {
+        if (false === $user->push()) {
             throw new \RuntimeException('Update error.');
         }
     }
