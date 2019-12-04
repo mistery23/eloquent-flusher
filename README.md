@@ -1,17 +1,18 @@
 # Eloquent smart push relations
+### Deffer push for unit tests
 
 ## Install
 ```
-composer require mistery23/eloquent-object-relations
+composer require mistery23/eloquent-smart-push-relations
 ```
 Using
 ---
 ```
-use mistery23\EloquentObjectRelations\HasObjectRelations;
+use Mistery23\EloquentSmartPushRelations\SmartPushRelations;
 
 class User extends Model
 {
-    use HasObjectRelations;
+    use SmartPushRelations;
     ....
 }
 ```
