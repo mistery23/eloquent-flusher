@@ -8,6 +8,9 @@
 
 namespace Mistery23\EloquentSmartPushRelations;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations;
+
 /**
  * Trait SmartPushRelations
  */
@@ -22,31 +25,43 @@ trait SmartPushRelations
 
     /**
      * Reload Eloquent method push.
+     *
+     * @since v1.1.0 Add detach to HasMany relation type
      */
     public function push()
     {
         parent::push();
 
         foreach ($this->deleteRelations as $key => $items) {
-            $this->$key()->detach($items);
+            if ($this->$key() instanceof Relations\HasMany) {
+                foreach ($items as $item){
+                    $item->delete();
+                }
+            } elseif ($this->$key() instanceof Relations\BelongsToMany) {
+                $this->$key()->detach($items);
+            } else {
+                throw new \RuntimeException('Relation is not implements.');
+            }
             unset($this->deleteRelations[$key]);
         }
     }
 
     /**
-     * @param string $relationName
-     * @param string $itemId
+     * @param string       $relationName
+     * @param string|Model $item
      *
      * @return void
      */
-    protected function detachItem(string $relationName, string $itemId): void
+    protected function detachItem(string $relationName, $item): void
     {
+        $this->relationsExists($relationName);
+
         if (true === isset($this->deleteRelations[$relationName])) {
-            $this->deleteRelations[$relationName] = array_merge($this->deleteRelations[$relationName], [$itemId]);
+            $this->deleteRelations[$relationName] = array_merge($this->deleteRelations[$relationName], [$item]);
             return;
         }
 
-        $this->deleteRelations[$relationName] = [$itemId];
+        $this->deleteRelations[$relationName] = [$item];
     }
 
     /**
