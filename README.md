@@ -10,23 +10,43 @@ Using
 ```
 use Mistery23\EloquentSmartPushRelations\SmartPushRelations;
 
-class User extends Model
+class Role extends Model
 {
     use SmartPushRelations;
     ....
 
     /**
+     * For BelongsToMany
      * Detach permission from a role.
      *
      * @param string $permissionId
      */
-    public function detachPermission($permissionId)
+    public function detachPermission($permissionId): void
     {
         $flag = $this->permissions->contains($permissionId);
 
         Assert::true($flag, 'Permission is not attached');
 
         $this->detachItem('permissions', $permissionId);
+    }
+
+    .....
+
+    /**
+     * For HasMany
+     * Detach role translations from a role.
+     *
+     * @param string $locale
+     *
+     * @return void
+     */
+    public function detachTranslation(string $locale): void
+    {
+        $translation = $this->translations->where('locale', $locale)->first();
+
+        Assert::notNull($translation, 'Translation is not attached');
+
+        $this->detachItem('translations', $translation);
     }
 }
 ```
@@ -35,17 +55,17 @@ class User extends Model
 ---
 ```
     /**
-     * Update user
+     * Update role
      *
-     * @param User $user
+     * @param Role $role
      *
      * @return void
      *
      * @throws \RuntimeException
      */
-    public function update(User $user): void
+    public function update(Role $role): void
     {
-        if (false === $user->push()) {
+        if (false === $role->push()) {
             throw new \RuntimeException('Update error.');
         }
     }
