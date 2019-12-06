@@ -35,15 +35,20 @@ trait SmartPushRelations
         foreach ($this->deleteRelations as $key => $items) {
             if ($this->$key() instanceof Relations\HasMany) {
                 foreach ($items as $item){
-                    $item->delete();
+                    if (!$item->delete()) {
+                        return false;
+                    }
                 }
             } elseif ($this->$key() instanceof Relations\BelongsToMany) {
                 $this->$key()->detach($items);
             } else {
                 throw new \RuntimeException('Relation is not implements.');
             }
+
             unset($this->deleteRelations[$key]);
         }
+
+        return true;
     }
 
     /**
@@ -58,6 +63,7 @@ trait SmartPushRelations
 
         if (true === isset($this->deleteRelations[$relationName])) {
             $this->deleteRelations[$relationName] = array_merge($this->deleteRelations[$relationName], [$item]);
+
             return;
         }
 
