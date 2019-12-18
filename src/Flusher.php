@@ -1,38 +1,32 @@
 <?php
-/**
- * PHP version 7.3
- *
- * @package Mistery23\EloquentSmartPushRelations
- * @author  Oleksandr Barabolia <alexandrbarabolya@gmail.com>
- */
 
-namespace Mistery23\EloquentSmartPushRelations;
+namespace Mistery23\Flusher;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations;
 
 /**
- * Trait SmartPushRelations
+ * Trait Flusher
  */
-trait SmartPushRelations
+trait Flusher
 {
 
     /**
      * @var array
      */
-    private $deleteRelations = [];
+    private $deleteItems = [];
 
 
     /**
-     * Reload Eloquent method push.
+     * Add method flush to write and remove entity with her relations.
      *
      * @since v1.1.0 Add detach to HasMany relation type
      */
-    public function push()
+    public function flush()
     {
         parent::push();
 
-        foreach ($this->deleteRelations as $key => $items) {
+        foreach ($this->deleteItems as $key => $items) {
             if ($this->$key() instanceof Relations\HasMany) {
                 foreach ($items as $item){
                     if (!$item->delete()) {
@@ -45,7 +39,7 @@ trait SmartPushRelations
                 throw new \RuntimeException('Relation is not implements.');
             }
 
-            unset($this->deleteRelations[$key]);
+            unset($this->deleteItems[$key]);
         }
 
         return true;
@@ -57,17 +51,17 @@ trait SmartPushRelations
      *
      * @return void
      */
-    protected function detachItem(string $relationName, $item): void
+    public function detachItem(string $relationName, $item): void
     {
         $this->relationsExists($relationName);
 
-        if (true === isset($this->deleteRelations[$relationName])) {
-            $this->deleteRelations[$relationName] = array_merge($this->deleteRelations[$relationName], [$item]);
+        if (isset($this->deleteItems[$relationName])) {
+            $this->deleteItems[$relationName] = array_merge($this->deleteItems[$relationName], [$item]);
 
             return;
         }
 
-        $this->deleteRelations[$relationName] = [$item];
+        $this->deleteItems[$relationName] = [$item];
     }
 
     /**

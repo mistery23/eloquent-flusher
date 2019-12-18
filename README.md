@@ -1,39 +1,35 @@
-# Eloquent smart push relations
-### Deffer push for unit tests
+# Eloquent flusher
+### Deffer push entity
 
 ## Install
 ```
-composer require mistery23/eloquent-smart-push-relations
+composer require mistery23/eloquent-flusher
 ```
 Using
 ---
 ```
-use Mistery23\EloquentSmartPushRelations\SmartPushRelations;
+use Mistery23\Flusher;
 
 class Role extends Model
 {
-    use SmartPushRelations;
+    use Flusher;
     ....
 
     /**
-     * For BelongsToMany
+     * For BelongsToMany.
      * Detach permission from a role.
      *
      * @param string $permissionId
      */
     public function detachPermission($permissionId): void
     {
-        $flag = $this->permissions->contains($permissionId);
-
-        Assert::true($flag, 'Permission is not attached');
-
         $this->detachItem('permissions', $permissionId);
     }
 
     .....
 
     /**
-     * For HasMany
+     * For HasMany.
      * Detach role translations from a role.
      *
      * @param string $locale
@@ -44,14 +40,12 @@ class Role extends Model
     {
         $translation = $this->translations->where('locale', $locale)->first();
 
-        Assert::notNull($translation, 'Translation is not attached');
-
         $this->detachItem('translations', $translation);
     }
 }
 ```
 
-### And save in repository
+### And flush in repository
 ---
 ```
     /**
@@ -65,8 +59,12 @@ class Role extends Model
      */
     public function update(Role $role): void
     {
-        if (false === $role->push()) {
+        if (false === $role->flush()) {
             throw new \RuntimeException('Update error.');
         }
     }
 ```
+---
+License
+---
+This package is free software distributed under the terms of the [MIT license](https://opensource.org/licenses/MIT). Enjoy!
